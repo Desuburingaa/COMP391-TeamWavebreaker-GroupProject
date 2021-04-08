@@ -22,20 +22,16 @@ public class DamageDealer : MonoBehaviour
     }
 
 
-    public void DealDamage(GameObject obj)
-    {
-        obj.GetComponent<Health>().DecreaseHealth(damage);
-    }
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        Debug.Log("collision detected");
-
-        if (other.gameObject.CompareTag("Player"))
+        private void OnTriggerEnter2D(Collider2D other)
         {
+            Debug.Log("collision detected");
 
-            DealDamage(other.gameObject);
-            Debug.Log("Deal Damage has been called");
+            if (other.gameObject.CompareTag("Enemy"))
+            {
+
+                other.GetComponent<Health>().DecreaseHealth(damage);
+                Debug.Log("Deal Damage has been called");
+            }
         }
-    }
 
 }

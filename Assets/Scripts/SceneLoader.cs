@@ -23,7 +23,12 @@ public class SceneLoader : MonoBehaviour
     }
     public void LoadPreviousScene()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        SceneManager.LoadScene(0);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }
 

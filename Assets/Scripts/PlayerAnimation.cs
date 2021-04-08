@@ -58,11 +58,6 @@ public class PlayerAnimation : MonoBehaviour
 
     }
 
-    public void Slash()
-    {
-        PlayerController playerCtrl = GetComponent<PlayerController>();
-        playerCtrl.SpawnSlash();
-    }
 
 
 }

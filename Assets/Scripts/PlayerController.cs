@@ -5,148 +5,154 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] LayerMask platLayer;
-    [SerializeField] GameObject slashVFX;
+    [SerializeField] GameObject slashVFXRight;
     [SerializeField] GameObject slashVFXLeft;
-    [SerializeField] GameObject SlashSpawnerRight;
-    [SerializeField] GameObject SlashSpawnerLeft;
+    [SerializeField] GameObject SlashSpawner;
 
-    public float playerSpeed = 2.5f;
-    public float jumpHeight = 5.5f;
-    public float jumpPushForce = -1f;
-    public float jumpVertForce = 20f;
-    bool facingRight = true;
+    //public variables
+    public float playerSpeed = 2.5f; //how fast player moves
+    public float jumpForce = 5.5f;  //how high player can jump
+    public Transform groundCheck; //the transform Gobj within which the circle collider will be spawned
+    public float checkRadius; //the radius of the circle collider
+    public LayerMask whatIsGround; //the layer where the platforms (and anything else) will be considered as the ground
+    public int extraJumps; // how many extra jumps the player gets (default 0)
+    public Transform frontCheck; //same as groundcheck but for front
+    public float wallSlidingSpeed; //how fast character slides off of walls
+    public float xWallForce; //xforce for wall jumping
+    public float yWallForce; //yforce for wall jumping
+    public float wallJumpTime; //how long the forces get applied
+    public float attackCoolDown; //how long player must wait before attacking again
 
-    //public float slideSpeed = 0.1f;
 
 
-    Rigidbody2D rbody;
-    BoxCollider2D boxCollider2d;
-    Transform playerPos;
-    PlayerAnimation playerAnimation;
- 
+
+
+    //components
+    private Rigidbody2D rbody;  //create a local variable for Rigidbody2D
+
+    //private variables
+    private float moveInput; //detect if player has input keys pressed
+    bool facingRight = true; //for flipping the character to face the right direction
+    private bool isGrounded; //for checking if player is in the air (for jumps)
+    private int jumps; //how many jumps the player has (in the air) at any given time
+    private bool isTouchingFront; //this is to help check if there is a wall in front of the player
+    private bool isWallSliding; // used to determine if wallsliding condidtions apply
+    private bool isWallJumping; //for walljumping
+    private bool isAttacking = false;
+
+
+
+
 
     // Start is called before the first frame update
     void Start()
     {
         rbody = GetComponent<Rigidbody2D>();
-        boxCollider2d = GetComponent<BoxCollider2D>();
-        playerPos = GetComponent<Transform>();
-        playerAnimation = GetComponent<PlayerAnimation>();
+        jumps = extraJumps;
         
+    }
+
+    private void FixedUpdate()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround); //this creats a circle collider at a position (under player) on the layer labelled whatIsGround
+        isTouchingFront = Physics2D.OverlapCircle(frontCheck.position, checkRadius, whatIsGround);
+
+        moveInput = Input.GetAxis("Horizontal");
+
+        rbody.velocity = new Vector2(moveInput * playerSpeed, rbody.velocity.y); //sets the x velocity
+
+        if (facingRight == false && moveInput > 0)
+        {
+            Flip();
+        }
+        else if (facingRight == true && moveInput < 0)
+        {
+            Flip();
+        }
+
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        float speedX = Input.GetAxis("Horizontal");
-
-        if ((speedX > 0 && !facingRight) || (speedX < 0 && facingRight))
+        if (Input.GetKeyDown(KeyCode.Space) && jumps > 0) //if player is in the air when attempting the jump
         {
-            Flip();
+            rbody.velocity = Vector2.up * jumpForce; // shorthand for creating an vector2 where x is 0 and y is 1, multiply by jumpForce
+            jumps--;
+        }
+        else if(Input.GetKeyDown(KeyCode.Space) && jumps <= 0 && isGrounded == true) // if player is on the ground when attempting the jump
+        {
+            rbody.velocity = Vector2.up * jumpForce;
+        }
+        if(isGrounded == true) //once player touches ground, then the counter gets "refilled"
+        {
+            jumps = extraJumps;
         }
 
-        if(speedX == 0)
+        if (isTouchingFront == true && isGrounded == false && moveInput!= 0) //if there is a platform/wall in front of player, and player is NOT on the ground, and player is pushing a directional key apply wall slide conditions
         {
-            playerAnimation.PlayerIdle(true);
-        }
-
-        if (speedX != 0 && rbody.velocity.y == 0)
-        {
-            playerAnimation.PlayerRun(true);
-        }
-
-        if (Input.GetAxis("Fire1") != 0)
-        {
-            playerAnimation.AttackAnim(true);
-
-        }
-
-        if (IsPlayerOnRightWall()|| IsPlayerOnLeftWall())
-        {
-            rbody.gravityScale = 0;
-            rbody.velocity = new Vector2(speedX * playerSpeed, 0);
-
+            isWallSliding = true;
         }
         else
         {
-            
-            rbody.velocity = new Vector2(speedX * playerSpeed, rbody.velocity.y);
-            rbody.gravityScale = 1;
-
+            isWallSliding = false;
         }
 
-
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (isWallSliding == true)
         {
-            //rbody.velocity = new Vector2(speedX * playerSpeed, rbody.velocity.y);
-            //Debug.Log("Space was pressed");
-
-            if (IsPlayerOnGround())
-            {
-                rbody.velocity = Vector2.up * jumpHeight;
-                playerAnimation.PlayerJump(true);
-            }
-            if (IsPlayerOnRightWall())
-            {
-                //Debug.Log("Space was pressed on right wall");
-                //rbody.gravityScale = 1;
-                //rbody.position.Set(rbody.position.x - 2f, rbody.position.y);
-                rbody.position = new Vector2(rbody.position.x - 0.2f, rbody.position.y);
-                //rbody.AddForce(new Vector2(jumpPushForce, jumpVertForce));
-                rbody.velocity = new Vector2(jumpPushForce, jumpVertForce);
-            }
-
+            rbody.velocity = new Vector2(rbody.velocity.x, Mathf.Clamp(rbody.velocity.y, -wallSlidingSpeed, float.MaxValue)); // so player can jump as high as he wants but the min cannot be lower than wallsliding speed (down)
         }
 
-        //Debug.Log(rbody.velocity);
+        if (Input.GetKeyDown(KeyCode.Space) && isWallSliding == true)
+        {
+            isWallJumping = true;
+            Invoke("SetIsWallJumpingToFalse", wallJumpTime); // invokes method after a set amount of time; **Warning** if code name is changed, this will break!!!!
+        }
+
+        if(isWallJumping == true)
+        {
+            rbody.velocity = new Vector2(xWallForce*(-moveInput), yWallForce); //the reason moveInput is negative is so that it will "bounce" away from the wall
+        }
 
 
-
+        if (Input.GetKeyDown(KeyCode.X) && isAttacking == false)
+        {
+            isAttacking = true;
+            AttackEffect();
+            Invoke("SetAttackingToFalse", attackCoolDown);
+        }
     }
     private void Flip()
     {
         facingRight = !facingRight;
-        Vector2 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
+        Vector3 scaler = transform.localScale; //take GObj scales
+        scaler.x *= -1; //flip along x axis.
+        transform.localScale = scaler; //make this flip the new norm
     }
 
-    private bool IsPlayerOnGround()
+    void SetIsWallJumpingToFalse()
     {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2d.bounds.center, boxCollider2d.bounds.size, 0f, Vector2.down, 0.1f, platLayer);
-
-        //Debug.Log(raycastHit2D.collider);
-
-       return raycastHit2D.collider != null;        
+        isWallJumping = false;
     }
 
-    private bool IsPlayerOnRightWall()
+    public void AttackEffect()
     {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2d.bounds.center, boxCollider2d.bounds.size, 0f, Vector2.right, 0.09f, platLayer);
-
-        //Debug.Log(raycastHit2D.collider);
-
-        return raycastHit2D.collider != null;
-    }
-
-    private bool IsPlayerOnLeftWall()
-    {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2d.bounds.center, boxCollider2d.bounds.size, 0f, Vector2.left, 0.09f, platLayer);
-        return raycastHit2D.collider != null;
-    }
-
-
-    public void SpawnSlash()
-    {
-        if (facingRight)
+        
+        if(facingRight == false)
         {
-            GameObject obj = GameObject.Instantiate(slashVFX, SlashSpawnerRight.transform.position, SlashSpawnerRight.transform.rotation);
+            GameObject _ = Instantiate(slashVFXLeft, SlashSpawner.transform.position, Quaternion.identity);
         }
-        else if(!facingRight)
+        else if(facingRight == true)
         {
-            GameObject obj = GameObject.Instantiate(slashVFXLeft, SlashSpawnerRight.transform.position, slashVFXLeft.transform.rotation);
+            GameObject _ = Instantiate(slashVFXRight, SlashSpawner.transform.position, Quaternion.identity);
         }
+
+    }
+
+    private void SetAttackingToFalse()
+    {
+        isAttacking = false;
     }
 }

@@ -21,11 +21,27 @@ public class Health : MonoBehaviour
     public void DecreaseHealth(int number)
     {
         health -= number;
+        CheckHealth();
 
     }
 
     public void IncreaseHealth(int number)
     {
         health += number;
+        CheckHealth();
+    }
+
+
+    private void CheckHealth()
+    {
+        if(health <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public int GetHealth()
+    {
+        return health;
     }
 }

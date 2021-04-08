@@ -52,4 +52,7 @@ public class SnakeMonster : MonoBehaviour
         //Debug.Log(raycastHit2D.collider);
         return raycastHit2D.collider != null;
     }
+
+
+
 }
