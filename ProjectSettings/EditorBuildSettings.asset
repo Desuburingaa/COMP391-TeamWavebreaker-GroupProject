@@ -6,12 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/PlayerMovement.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
     path: Assets/Scenes/Combat.unity
     guid: 502365041bb1e2246bf98c55c04fab10
-  - enabled: 1
-    path: Assets/Scenes/PowerUp.unity
-    guid: 19665ea2d19d9401589eb1b5cf4ea4d2
   m_configObjects: {}

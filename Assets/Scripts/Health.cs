@@ -6,16 +6,17 @@ public class Health : MonoBehaviour
 {
     [SerializeField] public int health = 100;
 
+
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void DecreaseHealth(int number)
@@ -34,14 +35,22 @@ public class Health : MonoBehaviour
 
     private void CheckHealth()
     {
-        if(health <= 0)
+        if (health <= 0)
         {
+            if (gameObject.CompareTag("Player"))
+            {
+                FindObjectOfType<RelicTracker>().GetComponent<RelicTracker>().PlayerLose();
+            }
+
             Destroy(gameObject);
         }
     }
 
     public int GetHealth()
-    {
+    { 
+        health = Mathf.Clamp(health, 0, 1000);
         return health;
     }
+
+
 }

@@ -144,10 +144,13 @@ public class PlayerController : MonoBehaviour
         if(facingRight == false)
         {
             GameObject _ = Instantiate(slashVFXLeft, SlashSpawner.transform.position, Quaternion.identity);
+            _.transform.SetParent(SlashSpawner.transform);
+
         }
         else if(facingRight == true)
         {
             GameObject _ = Instantiate(slashVFXRight, SlashSpawner.transform.position, Quaternion.identity);
+            _.transform.SetParent(SlashSpawner.transform);
         }
 
     }
