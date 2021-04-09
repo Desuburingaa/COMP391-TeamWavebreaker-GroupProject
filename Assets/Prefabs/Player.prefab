@@ -84,7 +84,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1314531171}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.1, y: -0.05, z: 0}
+  m_LocalPosition: {x: 0.129, y: -0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9136214065508919676}
@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 9136214065508919618}
   - component: {fileID: 9136214065508919677}
   - component: {fileID: 1464815142}
+  - component: {fileID: 1977402035}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -211,7 +212,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0905a7d951e16dd40bd64b80ebc031b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slashVFX: {fileID: 1961962810806767244, guid: 41a23b33756fac84e85cd15fc002b439,
+  slashVFXRight: {fileID: 1961962810806767244, guid: 41a23b33756fac84e85cd15fc002b439,
+    type: 3}
+  slashVFXLeft: {fileID: 3623507281274504559, guid: db9aaccb7506b3841bc553cd46715982,
     type: 3}
   SlashSpawner: {fileID: 1314531171}
   playerSpeed: 2.5
@@ -221,13 +224,13 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 256
-  extraJumps: 1
+  extraJumps: 0
   frontCheck: {fileID: 634993778}
-  wallSlidingSpeed: 0.2
+  wallSlidingSpeed: 0.45
   xWallForce: 5
   yWallForce: 5
   wallJumpTime: 0.05
-  attackCoolDown: 0
+  attackCoolDown: 1
 --- !u!70 &1464815142
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -244,3 +247,16 @@ CapsuleCollider2D:
   m_Offset: {x: 0.0034615993, y: -0.05769229}
   m_Size: {x: 0.14692323, y: 0.20461544}
   m_Direction: 0
+--- !u!114 &1977402035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9136214065508919616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ff642ca84d326149bae094ff52cecd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 540620
